@@ -12,6 +12,8 @@ namespace app\lib\book;
 abstract class AbstractSite
 {
 
+    abstract public function search($k, $p);
+
     /**
      * 搜索
      * @param $key
@@ -20,7 +22,9 @@ abstract class AbstractSite
      * @author 晃晃<wangchunhui@doweidu.com>
      * @time 2019-01-21
      */
-    abstract public function search($key, $p);
+    abstract public function searchUrl($key, $p);
+
+    abstract public function searchTransform($key, $p);
 
     /**
      * 获取目录
