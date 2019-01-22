@@ -8,20 +8,37 @@
 
 namespace app\lib\book;
 
-
-use app\lib\book\Siteimpl\Qisuu;
 use function GuzzleHttp\Promise\unwrap;
-use function var_dump;
 
 class Book
 {
 
     public static function search($key, $p)
     {
-        $qisuu   = new Qisuu();
-        $qC      = $qisuu->search($key, $p);
-        $results = unwrap(['qisuu' => $qC]);
-        var_dump($results['qisuu']->getHeaders());
+        $sites         = ['Qisuu'];
+        $siteInstances = [];
+        $siteClients   = [];
+        foreach ($sites as $site) {
+            $cls = 'app\\lib\\book\\siteImpl\\'.$site;
+            /**
+             * @var $obj AbstractSite
+             */
+            $obj                    = new $cls;
+            $siteClients[ $site ]   = $obj->buildSearchClient($key, $p);
+            $siteInstances[ $site ] = $obj;
+        }
+        $results = unwrap($siteClients);
+        $list    = [];
+        foreach ($results as $site => $response) {
+            if ($response && 200 == $response->getStatusCode()) {
+                $siteInstances[ $site ]->saveCookie($response->getHeader('set-cookie'),
+                                                    $siteInstances[ $site ]->searchCookieKey);
+                $arr  = $siteInstances[ $site ]->searchTransform((string) $response->getBody());
+                $list += $arr;
+            }
+        }
+
+        return $list;
     }
 
 }

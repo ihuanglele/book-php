@@ -9,22 +9,79 @@
 namespace app\lib\book;
 
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Cookie\SetCookie;
+use function file_exists;
+use function file_get_contents;
+use function file_put_contents;
+use function is_array;
+use function str_replace;
+use function strrchr;
+use const APPLICATION_PATH;
+
 abstract class AbstractSite
 {
 
-    abstract public function search($k, $p);
+    const PC_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36';
+    const ACCEPT   = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8';
+
+    public $searchCookieKey  = 'search';
+    public $catCookieKey     = 'cat';
+    public $articleCookieKey = 'article';
+
+    const PC_HEADERS = [
+        'User-Agent' => self::PC_AGENT,
+        'Accept'     => self::ACCEPT,
+    ];
 
     /**
-     * 搜索
+     * 构建搜索 client
      * @param $key
      * @param $p
      * @return mixed
      * @author 晃晃<wangchunhui@doweidu.com>
      * @time 2019-01-21
      */
-    abstract public function searchUrl($key, $p);
+    public function buildSearchClient($key, $p)
+    {
+        $client = new Client();
+        $conf   = $this->buildSearchConf($key, $p);
 
-    abstract public function searchTransform($key, $p);
+        if (!isset($conf['options']['headers'])) {
+            $conf['options']['headers'] = self::PC_HEADERS;
+        }
+        if (!isset($conf['options']['cookies'])) {
+            $cookieJar = $this->getCookieJar($this->searchCookieKey);
+            if ($cookieJar) {
+                $conf['options']['cookies'] = $cookieJar;
+            }
+        }
+
+        return $client->getAsync($conf['base_uri'], $conf['options']);
+    }
+
+    /**
+     * @param $key
+     * @param $p
+     * @return array
+     * [
+     *      'base_uri'  => '',
+     *      'options'   => []
+     * ]
+     * @author 晃晃<wangchunhui@doweidu.com>
+     * @time 2019-01-22
+     */
+    abstract protected function buildSearchConf($key, $p);
+
+    /**
+     * 过滤匹配搜索结果
+     * @param $html
+     * @return mixed
+     * @author 晃晃<wangchunhui@doweidu.com>
+     * @time 2019-01-22
+     */
+    abstract public function searchTransform($html);
 
     /**
      * 获取目录
@@ -44,5 +101,90 @@ abstract class AbstractSite
      * @time 2019-01-21
      */
     abstract public function getArticle($bookId, $article);
+
+    /**
+     * 保存 cookie 字符串
+     * @param $cookieStr
+     * @param $key
+     * @author 晃晃<wangchunhui@doweidu.com>
+     * @time 2019-01-22
+     */
+    public function saveCookie($cookieStr, $key = '')
+    {
+        $key = static::class.'-'.$key;
+        $key = $this->formatKey($key);
+        if (is_array($cookieStr)) {
+            $cookieStr = $cookieStr[0];
+        }
+        file_put_contents(APPLICATION_PATH.'/data/'.$key, $cookieStr);
+    }
+
+    /**
+     * 获取 cookieJar 对象
+     * @param $key
+     * @return CookieJar|null
+     * @author 晃晃<wangchunhui@doweidu.com>
+     * @time 2019-01-22
+     */
+    protected function getCookieJar($key)
+    {
+        $str = $this->getCookie($key);
+        if ($str) {
+            $cookieJar = new CookieJar();
+            $cookieJar->setCookie(SetCookie::fromString($str));
+
+            return $cookieJar;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 获取 cookie 字符串
+     * @param $key
+     * @return false|string|null
+     * @author 晃晃<wangchunhui@doweidu.com>
+     * @time 2019-01-22
+     */
+    protected function getCookie($key = '')
+    {
+        $key = static::class.'-'.$key;
+        $key = $this->formatKey($key);
+        if (file_exists(APPLICATION_PATH.'/data/'.$key)) {
+            return file_get_contents(APPLICATION_PATH.'/data/'.$key);
+        } else {
+            return null;
+        }
+    }
+
+    protected function saveText($key, $content)
+    {
+        $key = $this->formatKey($key);
+        file_put_contents(APPLICATION_PATH.'/data/'.$key, $content);
+    }
+
+    protected function formatKey($key)
+    {
+        return str_replace(['\\', '/'], '_', $key);
+    }
+
+    /**
+     * 获取 class 名字
+     * @return bool|string
+     * @author 晃晃<wangchunhui@doweidu.com>
+     * @time 2019-01-22
+     */
+    protected function getClassName()
+    {
+        return substr(strrchr(static::class, '\\'), 1);
+    }
+
+    abstract protected function encodeCatUrl($url);
+
+    abstract protected function decodeCatUrl($params);
+
+    abstract protected function encodeArticleUrl($url);
+
+    abstract protected function decodeArticleUrl($params);
 
 }
