@@ -20,7 +20,7 @@ class BaseController extends \fw\BaseController
      */
     protected function getParam($name, $default = null)
     {
-        return $this->getRequest()->getParam($name, $default);
+        return $this->getRequest()->getQuery($name, $default);
     }
 
     /**

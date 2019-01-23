@@ -26,6 +26,13 @@ class IndexController extends BaseController
         $this->success(Book::search($key, $p));
     }
 
+    public function catAction()
+    {
+        $type = $this->getParam('type');
+        $id   = $this->getParam('id');
+        $this->success(Book::cat($type, $id));
+    }
+
     public function testAction()
     {
         $query   = [
@@ -62,7 +69,5 @@ class IndexController extends BaseController
         }
 
     }
-
-
 
 }

@@ -8,16 +8,21 @@
 
 namespace app\lib\book;
 
-
+use ArrayAccess;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
+use InvalidArgumentException;
+use Yaf\Exception;
+use function array_filter;
+use function array_values;
 use function file_exists;
 use function file_get_contents;
 use function file_put_contents;
 use function is_array;
 use function str_replace;
 use function strrchr;
+use function var_dump;
 use const APPLICATION_PATH;
 
 abstract class AbstractSite
@@ -34,6 +39,8 @@ abstract class AbstractSite
         'User-Agent' => self::PC_AGENT,
         'Accept'     => self::ACCEPT,
     ];
+
+    protected static $className = '';
 
     /**
      * 构建搜索 client
@@ -81,7 +88,27 @@ abstract class AbstractSite
      * @author 晃晃<wangchunhui@doweidu.com>
      * @time 2019-01-22
      */
-    abstract public function searchTransform($html);
+    final public function searchTransform($html)
+    {
+        $this->saveText(static::class.'search_list', $html);
+        try {
+            $list = $this->_searchTransform($html);
+            if (is_array($list)) {
+
+            } elseif ($list instanceof ArrayAccess) {
+                $list = $list->toArray();
+            } else {
+                throw new InvalidArgumentException('返回参数错误');
+            }
+            $list = array_values(array_filter($list));
+
+            return $list;
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+        }
+    }
+
+    abstract protected function _searchTransform($html);
 
     /**
      * 获取目录
@@ -174,17 +201,47 @@ abstract class AbstractSite
      * @author 晃晃<wangchunhui@doweidu.com>
      * @time 2019-01-22
      */
-    protected function getClassName()
+    protected static function getClassName()
     {
-        return substr(strrchr(static::class, '\\'), 1);
+        if (empty(static::$className)) {
+            static::$className = substr(strrchr(static::class, '\\'), 1);
+        }
+
+        return static::$className;
     }
 
-    abstract protected function encodeCatUrl($url);
+    abstract protected function getCatUrlId($url);
 
-    abstract protected function decodeCatUrl($params);
+    abstract protected function decodeCatUrl($id);
 
     abstract protected function encodeArticleUrl($url);
 
-    abstract protected function decodeArticleUrl($params);
+    abstract protected function decodeArticleUrl($id);
+
+    /**
+     * @param $url
+     * @param array $options
+     * @return string
+     * @throws \Exception
+     * @author 晃晃<wangchunhui@doweidu.com>
+     * @time 2019-01-23
+     */
+    protected function getHtml($url, $options = [])
+    {
+        $client = new Client();
+        try {
+            if (!isset($options['headers'])) {
+                $options['headers'] = self::PC_HEADERS;
+            }
+            $response = $client->get($url, $options);
+            if (!$response || $response->getStatusCode() !== 200) {
+                throw new Exception($response->getReasonPhrase());
+            }
+
+            return (string) $response->getBody();
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
 
 }

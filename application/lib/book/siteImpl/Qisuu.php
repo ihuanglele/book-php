@@ -32,7 +32,9 @@ class Qisuu extends AbstractSite
      */
     public function getCat($bookId)
     {
-        // TODO: Implement getCat() method.
+        $html = $this->getHtml($this->decodeCatUrl($bookId));
+        $ql   = QueryList::html($html);
+        //        $title =
     }
 
     /**
@@ -78,53 +80,39 @@ class Qisuu extends AbstractSite
      * @author 晃晃<wangchunhui@doweidu.com>
      * @time 2019-01-22
      */
-    public function searchTransform($html)
+    protected function _searchTransform($html)
     {
-        $list = [];
-        $this->saveText(static::class.'search_list', $html);
-        try {
-            QueryList::html($html)->find('.c-title')->map(function($item) use (&$list)
-            {
-                /**
-                 * @var $item Elements
-                 */
-                $title  = $item->text();
-                $author = '';
-                $img    = '';
-                $link   = $item->find('a')->attr('href');
-                if (preg_match('/^(.*?)\((.*?)\)最新章节/', $title, $arr)) {
-                    $title  = $arr[1];
-                    $author = $arr[2];
-                }
-                $list[] = [
-                    'title'  => $title,
-                    'link'   => $this->encodeCatUrl($link),
-                    'author' => $author,
-                    'img'    => $img,
-                ];
-            });
-        } catch (\Exception $e) {
+        return QueryList::html($html)->find('.c-title')->map(function($item)
+        {
+            /**
+             * @var $item Elements
+             */
+            $title = $item->text();
+            if (preg_match('/^(.*?)\((.*?)\)最新章节/', $title, $arr)) {
+                $link = $item->find('a')->attr('href');
 
-        } finally {
-            return $list;
-        }
+                return [
+                    'name'   => $arr[1],
+                    'type'   => static::getClassName(),
+                    'bookId' => $this->getCatUrlId($link),
+                    'author' => $arr[2],
+                    'cover'  => '',
+                ];
+            }
+        });
     }
 
-    protected function encodeCatUrl($url)
+    protected function getCatUrlId($url)
     {
-        // TODO: Implement encodeCatUrl() method.
         list($r, $p) = explode('du/', $url);
         $arr = explode('/', $p);
 
-        return [
-            'type'   => $this->getClassName(),
-            'params' => $arr[0].'-'.$arr[1],
-        ];
+        return $arr[0].'-'.$arr[1];
     }
 
-    protected function decodeCatUrl($params)
+    protected function decodeCatUrl($id)
     {
-        // TODO: Implement decodeCatUrl() method.
+        return 'https://www.qisuu.la/du/'.$id.'/';
     }
 
     protected function encodeArticleUrl($url)
@@ -132,7 +120,7 @@ class Qisuu extends AbstractSite
         // TODO: Implement encodeArticleUrl() method.
     }
 
-    protected function decodeArticleUrl($params)
+    protected function decodeArticleUrl($id)
     {
         // TODO: Implement decodeArticleUrl() method.
     }
