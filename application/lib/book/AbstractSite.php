@@ -21,6 +21,7 @@ use function file_get_contents;
 use function file_put_contents;
 use function is_array;
 use function str_replace;
+use function strip_tags;
 use function strrchr;
 use function var_dump;
 use const APPLICATION_PATH;
@@ -216,7 +217,7 @@ abstract class AbstractSite
 
     abstract protected function encodeArticleUrl($url);
 
-    abstract protected function decodeArticleUrl($id);
+    abstract protected function decodeArticleUrl($articleId, $bookId = null);
 
     /**
      * @param $url
@@ -242,6 +243,18 @@ abstract class AbstractSite
         } catch (\Exception $e) {
             throw $e;
         }
+    }
+
+    /**
+     * 过滤字符串
+     * @param $html
+     * @return string
+     * @author 晃晃<wangchunhui@doweidu.com>
+     * @time 2019-01-23
+     */
+    protected function trim_html($html)
+    {
+        return str_replace(["\r\n", ' '], '', strip_tags($html));
     }
 
 }

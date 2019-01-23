@@ -10,10 +10,14 @@ namespace app\lib\book\siteImpl;
 
 
 use app\lib\book\AbstractSite;
+use app\lib\book\ArticleEntry;
+use app\lib\book\BookEntry;
 use QL\Dom\Elements;
 use QL\QueryList;
 use function explode;
 use function preg_match;
+use function str_replace;
+use function trim;
 
 class Qisuu extends AbstractSite
 {
@@ -32,9 +36,37 @@ class Qisuu extends AbstractSite
      */
     public function getCat($bookId)
     {
-        $html = $this->getHtml($this->decodeCatUrl($bookId));
-        $ql   = QueryList::html($html);
-        //        $title =
+        $html      = $this->getHtml($this->decodeCatUrl($bookId));
+        $ql        = QueryList::html($html);
+        $bookEntry = new BookEntry();
+        $bookEntry->setBookId($bookId);
+        $bookEntry->setName($ql->find('.info_des h1:eq(0)')->text());
+        $author = $ql->find('.info_des dl:eq(0)')->text();
+        if ($author) {
+            list($t1, $t2) = explode('：', $author);
+            $author = trim($t2);
+        } else {
+            $author = '';
+        }
+        $bookEntry->setAuthor($author);
+        $bookEntry->setType($this->getClassName());
+        $img = $ql->find('.tupian img:eq(0)')->src;
+        if ($img) {
+            $bookEntry->setCover('https://www.qisuu.la'.$img);
+        }
+        $outLineArr = explode('<br>', $ql->find('.intro')->htmls()[0]);
+        $bookEntry->setOutline($this->trim_html($outLineArr[0]));
+        $ql->find('.pc_list:eq(1) li')->map(function($item) use ($bookEntry)
+        {
+            $articleEntry = new ArticleEntry();
+            $articleEntry->setBookId($bookEntry->getBookId());
+            $articleEntry->setType($bookEntry->getType());
+            $articleEntry->setArticleId($this->encodeArticleUrl($item->find('a:eq(0)')->href));
+            $articleEntry->setTitle($item->text());
+            $bookEntry->addChapter($articleEntry);
+        });
+
+        return $bookEntry->toArray();
     }
 
     /**
@@ -112,16 +144,26 @@ class Qisuu extends AbstractSite
 
     protected function decodeCatUrl($id)
     {
-        return 'https://www.qisuu.la/du/'.$id.'/';
+        return self::SITE.'du/'.str_replace('-', '/', $id).'/';
     }
 
     protected function encodeArticleUrl($url)
     {
-        // TODO: Implement encodeArticleUrl() method.
+        if ($url) {
+            return substr($url, 0, -5);
+        } else {
+            return '';
+        }
     }
 
-    protected function decodeArticleUrl($id)
+    protected function decodeArticleUrl($articleId, $bookId = null)
     {
-        // TODO: Implement decodeArticleUrl() method.
+        if (empty($bookId)) {
+            $bookId = '1/1';
+        } else {
+            $bookId = str_replace('-', '/', $bookId);
+        }
+
+        return self::SITE.$bookId.'/'.$articleId.'.html';
     }
 }
