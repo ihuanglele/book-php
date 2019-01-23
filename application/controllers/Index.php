@@ -33,6 +33,14 @@ class IndexController extends BaseController
         $this->success(Book::cat($type, $id));
     }
 
+    public function articleAction()
+    {
+        $type      = $this->getParam('type');
+        $bookId    = $this->getParam('bookId');
+        $articleId = $this->getParam('articleId');
+        $this->success(Book::article($type, $bookId, $articleId));
+    }
+
     public function testAction()
     {
         $query   = [

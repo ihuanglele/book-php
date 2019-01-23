@@ -72,4 +72,18 @@ class Book
 
     }
 
+    public static function article($type, $bookId, $articleId)
+    {
+        if (!in_array($type, self::SITES)) {
+            throw new \InvalidArgumentException('参数错误');
+        }
+        $cls = self::SITE_NAMESPACE_PREFIX.$type;
+        /**
+         * @var $instance AbstractSite
+         */
+        $instance = new $cls();
+
+        return $instance->getArticle($articleId, $bookId);
+    }
+
 }

@@ -122,13 +122,13 @@ abstract class AbstractSite
 
     /**
      * 获取正文
+     * @param $articleId
      * @param $bookId
-     * @param $article
      * @return mixed
      * @author 晃晃<wangchunhui@doweidu.com>
      * @time 2019-01-21
      */
-    abstract public function getArticle($bookId, $article);
+    abstract public function getArticle($articleId, $bookId);
 
     /**
      * 保存 cookie 字符串

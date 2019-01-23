@@ -71,15 +71,17 @@ class Qisuu extends AbstractSite
 
     /**
      * 获取正文
+     * @param $articleId
      * @param $bookId
-     * @param $article
      * @return mixed
      * @author 晃晃<wangchunhui@doweidu.com>
      * @time 2019-01-21
      */
-    public function getArticle($bookId, $article)
+    public function getArticle($articleId, $bookId)
     {
-        // TODO: Implement getArticle() method.
+        $ql = QueryList::html($this->getHtml($this->decodeArticleUrl($articleId, $bookId)));
+
+        return $ql->find('#content1')->text();
     }
 
     /**
@@ -164,6 +166,6 @@ class Qisuu extends AbstractSite
             $bookId = str_replace('-', '/', $bookId);
         }
 
-        return self::SITE.$bookId.'/'.$articleId.'.html';
+        return self::SITE.'du/'.$bookId.'/'.$articleId.'.html';
     }
 }
