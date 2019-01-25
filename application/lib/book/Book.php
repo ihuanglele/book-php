@@ -1,15 +1,17 @@
 <?php
 /**
  * Created by PhpStorm.
- * Author: 晃晃<wangchunhui@doweidu.com>
+ * Author: ihuanglele<huanglele@yousuowei.cn>
  * Date: 2019-01-21
  * Time: 17:03
  */
 
 namespace app\lib\book;
 
+use fw\Container;
 use function GuzzleHttp\Promise\unwrap;
 use function in_array;
+use function time;
 
 class Book
 {
@@ -24,11 +26,16 @@ class Book
      * @param $p
      * @return array
      * @throws \Throwable
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-23
      */
     public static function search($key, $p)
     {
+        $ck  = $key.$p;
+        $res = Container::getCache()->get($ck);
+        if ($res) {
+            return $res;
+        }
         $siteInstances = [];
         $siteClients   = [];
         foreach (self::SITES as $site) {
@@ -40,7 +47,7 @@ class Book
             $siteClients[ $site ]   = $obj->buildSearchClient($key, $p);
             $siteInstances[ $site ] = $obj;
         }
-        $list    = [];
+        $list = [];
         try {
             $results = unwrap($siteClients);
             foreach ($results as $site => $response) {
@@ -54,36 +61,76 @@ class Book
         } catch (\Exception $e) {
             die($e->getMessage());
         }
+        Container::getCache()->set($ck, $list, time() + 36000);
+
         return $list;
     }
 
+    /**
+     * 获取书
+     * @param $type
+     * @param $id
+     * @return mixed
+     * @author ihuanglele<huanglele@yousuowei.cn>
+     * @time 2019-01-25
+     */
     public static function cat($type, $id)
     {
         if (!in_array($type, self::SITES)) {
             throw new \InvalidArgumentException('参数错误');
         }
-        $cls = self::SITE_NAMESPACE_PREFIX.$type;
-        /**
-         * @var $instance AbstractSite
-         */
-        $instance = new $cls();
+        $key     = $type.$id;
+        $content = Container::getCache()->get($key);
+        if ($content) {
+            return $content;
+        } else {
+            $cls = self::SITE_NAMESPACE_PREFIX.$type;
+            /**
+             * @var $instance AbstractSite
+             */
+            $instance = new $cls();
 
-        return $instance->getCat($id);
+            $content = $instance->getCat($id);
+            if ($content) {
+                Container::getCache()->set($key, $content, 0);
+            }
 
+            return $content;
+        }
     }
 
+    /**
+     * 获取文章内容
+     * @param $type
+     * @param $bookId
+     * @param $articleId
+     * @return string
+     * @author ihuanglele<huanglele@yousuowei.cn>
+     * @time 2019-01-25
+     */
     public static function article($type, $bookId, $articleId)
     {
         if (!in_array($type, self::SITES)) {
             throw new \InvalidArgumentException('参数错误');
         }
-        $cls = self::SITE_NAMESPACE_PREFIX.$type;
-        /**
-         * @var $instance AbstractSite
-         */
-        $instance = new $cls();
+        $key     = $type.$bookId.$articleId;
+        $content = Container::getCache()->get($key);
+        if ($content) {
+            return $content;
+        } else {
+            $cls = self::SITE_NAMESPACE_PREFIX.$type;
+            /**
+             * @var $instance AbstractSite
+             */
+            $instance = new $cls();
 
-        return $instance->getArticle($articleId, $bookId);
+            $content = $instance->getArticle($articleId, $bookId);
+            if ($content) {
+                Container::getCache()->set($key, $content, 0);
+            }
+
+            return $content;
+        }
     }
 
 }

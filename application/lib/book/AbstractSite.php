@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * Author: 晃晃<wangchunhui@doweidu.com>
+ * Author: ihuanglele<huanglele@yousuowei.cn>
  * Date: 2019-01-21
  * Time: 17:14
  */
@@ -48,7 +48,7 @@ abstract class AbstractSite
      * @param $key
      * @param $p
      * @return mixed
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-21
      */
     public function buildSearchClient($key, $p)
@@ -77,7 +77,7 @@ abstract class AbstractSite
      *      'base_uri'  => '',
      *      'options'   => []
      * ]
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-22
      */
     abstract protected function buildSearchConf($key, $p);
@@ -86,7 +86,7 @@ abstract class AbstractSite
      * 过滤匹配搜索结果
      * @param $html
      * @return mixed
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-22
      */
     final public function searchTransform($html)
@@ -115,7 +115,7 @@ abstract class AbstractSite
      * 获取目录
      * @param $bookId
      * @return mixed
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-21
      */
     abstract public function getCat($bookId);
@@ -125,7 +125,7 @@ abstract class AbstractSite
      * @param $articleId
      * @param $bookId
      * @return mixed
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-21
      */
     abstract public function getArticle($articleId, $bookId);
@@ -134,7 +134,7 @@ abstract class AbstractSite
      * 保存 cookie 字符串
      * @param $cookieStr
      * @param $key
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-22
      */
     public function saveCookie($cookieStr, $key = '')
@@ -151,7 +151,7 @@ abstract class AbstractSite
      * 获取 cookieJar 对象
      * @param $key
      * @return CookieJar|null
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-22
      */
     protected function getCookieJar($key)
@@ -171,7 +171,7 @@ abstract class AbstractSite
      * 获取 cookie 字符串
      * @param $key
      * @return false|string|null
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-22
      */
     protected function getCookie($key = '')
@@ -199,7 +199,7 @@ abstract class AbstractSite
     /**
      * 获取 class 名字
      * @return bool|string
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-22
      */
     protected static function getClassName()
@@ -224,7 +224,7 @@ abstract class AbstractSite
      * @param array $options
      * @return string
      * @throws \Exception
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-23
      */
     protected function getHtml($url, $options = [])
@@ -249,7 +249,7 @@ abstract class AbstractSite
      * 过滤字符串
      * @param $html
      * @return string
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-23
      */
     protected function trim_html($html)

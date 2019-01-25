@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * Author: 晃晃<wangchunhui@doweidu.com>
+ * Author: ihuanglele<huanglele@yousuowei.cn>
  * Date: 2019-01-21
  * Time: 17:29
  */
@@ -31,7 +31,7 @@ class Qisuu extends AbstractSite
      * 获取目录
      * @param $bookId
      * @return mixed
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-21
      */
     public function getCat($bookId)
@@ -74,7 +74,7 @@ class Qisuu extends AbstractSite
      * @param $articleId
      * @param $bookId
      * @return mixed
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-21
      */
     public function getArticle($articleId, $bookId)
@@ -89,7 +89,7 @@ class Qisuu extends AbstractSite
      * @param $key
      * @param $p
      * @return array
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-21
      */
     protected function buildSearchConf($key, $p)
@@ -111,7 +111,7 @@ class Qisuu extends AbstractSite
      * 过滤匹配搜索结果
      * @param $html
      * @return mixed
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-22
      */
     protected function _searchTransform($html)

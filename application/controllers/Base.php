@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * Author: 晃晃<wangchunhui@doweidu.com>
+ * Author: ihuanglele<huanglele@yousuowei.cn>
  * Date: 2019-01-21
  * Time: 16:03
  */
@@ -15,7 +15,7 @@ class BaseController extends \fw\BaseController
      * @param $name
      * @param null $default
      * @return mixed
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-21
      */
     protected function getParam($name, $default = null)
@@ -26,7 +26,7 @@ class BaseController extends \fw\BaseController
     /**
      * getParams
      * @return array
-     * @author 晃晃<wangchunhui@doweidu.com>
+     * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-21
      */
     protected function getParams()

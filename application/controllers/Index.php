@@ -6,7 +6,7 @@ use GuzzleHttp\Cookie\CookieJar;
 
 /**
  * Created by PhpStorm.
- * Author: 晃晃<wangchunhui@doweidu.com>
+ * Author: ihuanglele<huanglele@yousuowei.cn>
  * Date: 2019-01-21
  * Time: 16:03
  */
