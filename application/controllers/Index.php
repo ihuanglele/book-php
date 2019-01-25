@@ -28,9 +28,9 @@ class IndexController extends BaseController
 
     public function catAction()
     {
-        $type = $this->getParam('type');
-        $id   = $this->getParam('id');
-        $this->success(Book::cat($type, $id));
+        $type   = $this->getParam('type');
+        $bookId = $this->getParam('bookId');
+        $this->success(Book::cat($type, $bookId));
     }
 
     public function articleAction()

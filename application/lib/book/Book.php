@@ -69,17 +69,17 @@ class Book
     /**
      * 获取书
      * @param $type
-     * @param $id
+     * @param $bookId
      * @return mixed
      * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-25
      */
-    public static function cat($type, $id)
+    public static function cat($type, $bookId)
     {
         if (!in_array($type, self::SITES)) {
             throw new \InvalidArgumentException('参数错误');
         }
-        $key     = $type.$id;
+        $key     = $type.$bookId;
         $content = Container::getCache()->get($key);
         if ($content) {
             return $content;
@@ -90,7 +90,7 @@ class Book
              */
             $instance = new $cls();
 
-            $content = $instance->getCat($id);
+            $content = $instance->getCat($bookId);
             if ($content) {
                 Container::getCache()->set($key, $content, 0);
             }
