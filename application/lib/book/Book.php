@@ -59,7 +59,7 @@ class Book
                 }
             }
         } catch (\Exception $e) {
-            die($e->getMessage());
+            throw $e;
         }
         Container::getCache()->set($ck, $list, time() + 36000);
 

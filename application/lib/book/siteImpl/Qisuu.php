@@ -12,6 +12,7 @@ namespace app\lib\book\siteImpl;
 use app\lib\book\AbstractSite;
 use app\lib\book\ArticleEntry;
 use app\lib\book\BookEntry;
+use fw\Container;
 use QL\Dom\Elements;
 use QL\QueryList;
 use function explode;
@@ -123,14 +124,19 @@ class Qisuu extends AbstractSite
              */
             $title = $item->text();
             if (preg_match('/^(.*?)\((.*?)\)最新章节/', $title, $arr)) {
-                $link = $item->find('a')->attr('href');
-
+                $link   = $item->find('a')->attr('href');
+                $bookId = $this->getCatUrlId($link);
+                $book   = Container::getCache()->get(static::getClassName().$bookId);
+                $cover  = '';
+                if ($book) {
+                    $cover = $book['cover'];
+                }
                 return [
                     'name'   => $arr[1],
                     'type'   => static::getClassName(),
                     'bookId' => $this->getCatUrlId($link),
                     'author' => $arr[2],
-                    'cover'  => '',
+                    'cover'  => $cover,
                 ];
             }
         });
