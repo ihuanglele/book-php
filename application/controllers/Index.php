@@ -16,7 +16,8 @@ class IndexController extends BaseController
 
     public function indexAction()
     {
-        $this->success('ok');
+        $url = $_SERVER['host'].'/index.html';
+        header('location: '.$url);
     }
 
     public function searchAction()
