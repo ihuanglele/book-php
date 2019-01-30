@@ -16,8 +16,7 @@ class IndexController extends BaseController
 
     public function indexAction()
     {
-        $url = $_SERVER['host'].'/index.html';
-        header('location: '.$url);
+        $this->success('ok');
     }
 
     public function searchAction()
@@ -31,7 +30,8 @@ class IndexController extends BaseController
     {
         $type   = $this->getParam('type');
         $bookId = $this->getParam('bookId');
-        $this->success(Book::cat($type, $bookId));
+        $data   = Book::cat($type, $bookId);
+        $this->success($data);
     }
 
     public function articleAction()

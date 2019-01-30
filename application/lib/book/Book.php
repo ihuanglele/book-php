@@ -76,7 +76,7 @@ class Book
      */
     public static function cat($type, $bookId)
     {
-        if (!in_array($type, self::SITES)) {
+        if (!in_array($type, self::SITES) || !$bookId) {
             throw new \InvalidArgumentException('参数错误');
         }
         $key     = $type.$bookId;
