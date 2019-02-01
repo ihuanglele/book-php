@@ -7,7 +7,7 @@
  */
 
 
-class BaseController extends \fw\BaseController
+class BaseController extends \fw\Controller
 {
 
     /**

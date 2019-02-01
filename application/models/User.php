@@ -14,4 +14,6 @@ use fw\Model;
 class User extends Model
 {
 
+    const TABLE = 'user';
+
 }
