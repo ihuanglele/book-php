@@ -16,7 +16,7 @@ class IndexController extends BaseController
 
     public function indexAction()
     {
-        $this->success('ok');
+        var_dump($this->getRequest()->get('name'));
     }
 
     public function searchAction()
