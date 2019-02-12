@@ -16,7 +16,7 @@ use function time;
 class Book
 {
 
-    const SITES = ['Qisuu'];
+    const SITES = ['Qisuu', 'Yznnw'];
 
     const SITE_NAMESPACE_PREFIX = 'app\\lib\\book\\siteImpl\\';
 
