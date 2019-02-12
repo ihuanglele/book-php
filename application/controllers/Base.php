@@ -10,6 +10,4 @@
 class BaseController extends \fw\Controller
 {
 
-
-
 }
