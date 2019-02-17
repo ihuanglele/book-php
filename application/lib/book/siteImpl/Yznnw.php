@@ -10,9 +10,13 @@ namespace app\lib\book\siteImpl;
 
 
 use app\lib\book\AbstractSite;
+use app\lib\book\BookEntry;
+use QL\QueryList;
 
 class Yznnw extends AbstractSite
 {
+
+    const URL = 'http://m.yznnw.com/index.php';
 
     /**
      * @param $key
@@ -27,12 +31,37 @@ class Yznnw extends AbstractSite
      */
     protected function buildSearchConf($key, $p)
     {
-        // TODO: Implement buildSearchConf() method.
+        return [
+            'base_uri' => self::URL . '/book/store/',
+            'options' => [
+                'query' => [
+                    'searchkey' => $key,
+                    'page' => $p - 1,
+                    'ajaxMethod' => 'getsearchbooks',
+                ],
+                'headers' => self::PC_HEADERS + ['X-Requested-With' => 'XMLHttpRequest'],
+            ],
+        ];
     }
 
     protected function _searchTransform($html)
     {
-        // TODO: Implement _searchTransform() method.
+        $data = json_decode($html, true);
+        if (!$data || !isset($data['Flag']) || !$data['Flag']
+            || !isset($data['Data']['search_response']['books']) || empty($data['Data']['search_response']['books'])) {
+            return [];
+        }
+        $arr = [];
+        foreach ($data['Data']['search_response']['books'] as $book) {
+            $arr[] = [
+                'name' => $book['bookname'],
+                'type' => static::getClassName(),
+                'bookId' => $book['bookid'],
+                'author' => $book['authorname'],
+                'cover' => $book['coverurl'],
+            ];
+        }
+        return $arr;
     }
 
     /**
@@ -44,7 +73,16 @@ class Yznnw extends AbstractSite
      */
     public function getCat($bookId)
     {
-        // TODO: Implement getCat() method.
+        $infoUrl = 'http://m.yznnw.com/index.php/book/cover/bid=' . $bookId . '/';
+        $html = file_get_contents($infoUrl);
+        $ql = QueryList::html($html);
+        $bookEntry = new BookEntry();
+        $bookEntry->setBookId($bookId);
+        $name = $ql->find('.name:eq(0) a')->text();
+        $bookEntry->setName(rtrim($name, '全文阅读'));
+        $bookEntry->setAuthor($ql->find('.dd_box:eq(0) a')->text());
+        $bookEntry->setCover($ql->find('.pic img:eq(0)')->src);
+        return $bookEntry->toArray();
     }
 
     /**
