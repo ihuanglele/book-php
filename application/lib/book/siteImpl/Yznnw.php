@@ -73,15 +73,17 @@ class Yznnw extends AbstractSite
      */
     public function getCat($bookId)
     {
-        $infoUrl = 'http://m.yznnw.com/index.php/book/cover/bid=' . $bookId . '/';
+        $infoUrl = "http://www.yznnw.com/txt/$bookId.html";
         $html = file_get_contents($infoUrl);
         $ql = QueryList::html($html);
         $bookEntry = new BookEntry();
         $bookEntry->setBookId($bookId);
-        $name = $ql->find('.name:eq(0) a')->text();
-        $bookEntry->setName(rtrim($name, '全文阅读'));
+        $bookEntry->setName($ql->find('.src a:last')->text());
         $bookEntry->setAuthor($ql->find('.dd_box:eq(0) a')->text());
         $bookEntry->setCover($ql->find('.pic img:eq(0)')->src);
+        $outline = $ql->find('.info_box_txt p:eq(1)')->text();
+        $outline = trim($outline, '【收起】');
+        $bookEntry->setOutline($outline);
         return $bookEntry->toArray();
     }
 
