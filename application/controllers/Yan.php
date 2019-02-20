@@ -55,26 +55,27 @@ class YanController extends BaseController
     public function indexAction()
     {
         $where = [];
-        $name  = $this->get('name');
-        if ($name) {
-            $where['name[~]'] = $name;
+        $key   = $this->get('key');
+        if ($key) {
+            if (is_numeric($key)) {
+                $where['tel[~]'] = $key;
+            } else {
+                $where['name[~]'] = $key;
+            }
         }
-
-        $tel = $this->get('tel');
-        if ($tel) {
-            $where['tel[~]'] = $tel;
+        $p = $this->get('p');
+        if (!is_numeric($p)) {
+            $p = 1;
         }
-
+        $where['LIMIT'] = [($p - 1) * 20, 20];
         $User           = new User();
         $where['ORDER'] = [
             'uid' => 'DESC',
         ];
-        $where['LIMIT'] = 20;
-
 
         $this->success($this->get());
         $r = $User->select('*', $where);
-        $this->success(['sql' => $User->log(), 'list' => $r]);
+        $this->success($r);
     }
 
     public function loginAction()
@@ -96,5 +97,10 @@ class YanController extends BaseController
     {
         $this->sessionIns->del('aid');
         $this->success('退出登录');
+    }
+
+    public function addAction()
+    {
+
     }
 }
