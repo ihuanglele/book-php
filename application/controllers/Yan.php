@@ -101,6 +101,40 @@ class YanController extends BaseController
 
     public function addAction()
     {
+        $this->success('添加成功');
+    }
 
+    public function uploadAction()
+    {
+        $file = $this->getRequest()->getFiles('file');
+        list($i, $type) = explode('/', $file['type']);
+        if (!in_array($type, ['jpeg', 'png', 'jpg'])) {
+            $this->error('不支持图片类型');
+        }
+        $name = '/data/'.uniqid().'.'.$type;
+        move_uploaded_file($file['tmp_name'], APPLICATION_PATH.$name);
+        $this->success(['path' => $name]);
+    }
+
+    public function dataAction()
+    {
+        $User = new User();
+        $list = $User->select(['qiujingz', 'qiujingy'], []);
+        $data = [];
+        foreach ($list as $item) {
+            if (is_array($item)) {
+                foreach ($item as $value) {
+                    if (!in_array($value, $data)) {
+                        $data[] = trim($value);
+                    }
+                }
+            } else {
+                if (!in_array($item, $data)) {
+                    $data[] = trim($item);
+                }
+            }
+        }
+        asort($data);
+        echo implode("\r\n", $data);
     }
 }
