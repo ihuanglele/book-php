@@ -10,6 +10,7 @@ namespace app\lib\book\siteImpl;
 
 
 use app\lib\book\AbstractSite;
+use app\lib\book\ArticleEntry;
 use app\lib\book\BookEntry;
 use QL\QueryList;
 
@@ -75,15 +76,43 @@ class Yznnw extends AbstractSite
     {
         $infoUrl = "http://www.yznnw.com/txt/$bookId.html";
         $html = file_get_contents($infoUrl);
+        $html = $this->toUtf8($html);
         $ql = QueryList::html($html);
         $bookEntry = new BookEntry();
         $bookEntry->setBookId($bookId);
         $bookEntry->setName($ql->find('.src a:last')->text());
-        $bookEntry->setAuthor($ql->find('.dd_box:eq(0) a')->text());
-        $bookEntry->setCover($ql->find('.pic img:eq(0)')->src);
-        $outline = $ql->find('.info_box_txt p:eq(1)')->text();
-        $outline = trim($outline, '【收起】');
+        $bookEntry->setAuthor($ql->find('#bookname:eq(0) a')->text());
+        $bookEntry->setCover($ql->find('.coverbox img:eq(0)')->src);
+        $outline = $ql->find('.introtxt')->text();
+        $bookEntry->setType($this->getClassName());
+        $outline = $this->trim_html($outline);
         $bookEntry->setOutline($outline);
+        $catUrl = $ql->find('.opendir a:first')->attr('href');
+        if ($catUrl) {
+//            $catHtml = $this->toUtf8(file_get_contents($catUrl));
+            $header = self::PC_HEADERS;
+            $header['Host'] = 'www.yznnw.com';
+            $catHtml = $this->toUtf8($this->getHtml($catUrl), [
+                'header' => $header,
+            ]);
+            unset($ql);
+            $catFirstId = 0;
+            if (preg_match('/html\/(\d)\//', $catUrl, $arr)) {
+                $catFirstId = $arr[1];
+            }
+            $ql = QueryList::html($catHtml);
+            $ql->find('.zjlist4 li')->map(function ($item) use ($bookEntry, $catFirstId) {
+                $articleEntry = new ArticleEntry();
+                $articleEntry->setBookId($bookEntry->getBookId());
+                $articleEntry->setType($bookEntry->getType());
+                $articleId = rtrim($item->find('a:eq(0)')->href, '.html');
+                $articleEntry->setArticleId($catFirstId . '-' . $articleId);
+                $title = $item->text();
+                $title = preg_replace('/^(Part)(\s?)(\d)(\s?)/', '', $title);
+                $articleEntry->setTitle($title);
+                $bookEntry->addChapter($articleEntry);
+            });
+        }
         return $bookEntry->toArray();
     }
 
@@ -97,7 +126,12 @@ class Yznnw extends AbstractSite
      */
     public function getArticle($articleId, $bookId)
     {
-        // TODO: Implement getArticle() method.
+        $url = $this->decodeArticleUrl($articleId, $bookId);
+        $html = $this->toUtf8($this->getHtml($url));
+        $ql = QueryList::html($html);
+        $content = $ql->find('#htmlContent')->text();
+        $content = ltrim($content, '(全本小说网?www.yznnw.com\\|m.yznnw.coＭ\\?)');
+        return $content;
     }
 
     protected function getCatUrlId($url)
@@ -117,6 +151,8 @@ class Yznnw extends AbstractSite
 
     protected function decodeArticleUrl($articleId, $bookId = null)
     {
-        // TODO: Implement decodeArticleUrl() method.
+        // http://www.yznnw.com/files/article/html/3/3645/1894933.html
+        list($f, $id) = explode('-', $articleId);
+        return "http://www.yznnw.com/files/article/html/$f/$bookId/$id.html";
     }
 }

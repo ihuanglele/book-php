@@ -39,9 +39,10 @@ abstract class AbstractSite
     const PC_HEADERS = [
         'User-Agent' => self::PC_AGENT,
         'Accept'     => self::ACCEPT,
+        'Accept-Language' => 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'
     ];
 
-    protected static $className = '';
+    protected $className = '';
 
     /**
      * 构建搜索 client
@@ -202,13 +203,13 @@ abstract class AbstractSite
      * @author ihuanglele<huanglele@yousuowei.cn>
      * @time 2019-01-22
      */
-    protected static function getClassName()
+    protected function getClassName()
     {
-        if (empty(static::$className)) {
-            static::$className = substr(strrchr(static::class, '\\'), 1);
+        if (empty($this->className)) {
+            $this->className = substr(strrchr(static::class, '\\'), 1);
         }
 
-        return static::$className;
+        return $this->className;
     }
 
     abstract protected function getCatUrlId($url);
@@ -254,7 +255,23 @@ abstract class AbstractSite
      */
     protected function trim_html($html)
     {
-        return str_replace(["\r\n", ' '], '', strip_tags($html));
+        return trim(strip_tags(str_replace(["\r\n", "&nbsp;"], '', $html)));
+    }
+
+    /**
+     * 转换字符集
+     * @param $str
+     * @param string $charset
+     * @return string
+     */
+    protected function toUtf8($str, $charset = "GBK")
+    {
+        $r = iconv('GBK', 'UTF-8', $str);
+        if (false === $r) {
+            return '';
+        } else {
+            return $r;
+        }
     }
 
 }

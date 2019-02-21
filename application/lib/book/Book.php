@@ -16,8 +16,8 @@ use function time;
 class Book
 {
 
-//    const SITES = ['Qisuu', 'Yznnw'];
-    const SITES = ['Yznnw'];
+    const SITES = ['Qisuu', 'Yznnw'];
+//    const SITES = ['Yznnw'];
 
     const SITE_NAMESPACE_PREFIX = 'app\\lib\\book\\siteImpl\\';
 
@@ -56,7 +56,7 @@ class Book
                     $siteInstances[ $site ]->saveCookie($response->getHeader('set-cookie'),
                                                         $siteInstances[ $site ]->searchCookieKey);
                     $arr  = $siteInstances[ $site ]->searchTransform((string) $response->getBody());
-                    $list += $arr;
+                    $list = array_merge($list, $arr);
                 }
             }
         } catch (\Exception $e) {
