@@ -1,8 +1,6 @@
 <?php
 
 use app\lib\book\Book;
-use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
 
 /**
  * Created by PhpStorm.
@@ -43,43 +41,6 @@ class IndexController extends BaseController
         $bookId    = $this->get('bookId');
         $articleId = $this->get('articleId');
         $this->success(Book::article($type, $bookId, $articleId));
-    }
-
-    public function testAction()
-    {
-        $query   = [
-            'q'  => 'key',
-            'p'  => 0,
-            'cc' => 'qisuu.la',
-        ];
-        $jar     = new CookieJar();
-        $default =
-            'BAIDUID=F2BDC30EE76DF13862B4094C23A5B494:FG=1; expires=Wed, 22-Jan-20 01:23:04 GMT; max-age=31536000; path=/; domain=.baidu.com; version=1';
-        $c       = file_get_contents('cookie');
-        $jar->setCookie(GuzzleHttp\Cookie\SetCookie::fromString($c ?? $default));
-
-        $client   = new Client();
-        $response = $client->get('http://zhannei.baidu.com/cse/site/',
-                                 [
-                                     'query'   => $query,
-                                     'headers' => [
-                                         'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
-                                         'Accept'     => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                                     ],
-                                     'debug'   => true,
-                                     'cookies' => $jar,
-                                 ]);
-        var_dump('----------');
-        if ($response) {
-            $cookie = $response->getHeader('set-cookie');
-            if ($cookie) {
-                file_put_contents('cookie', $cookie);
-            }
-            var_dump((string) $response->getBody());
-        } else {
-            echo 'request error';
-        }
-
     }
 
 }

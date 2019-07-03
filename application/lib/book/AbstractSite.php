@@ -24,7 +24,7 @@ use function str_replace;
 use function strip_tags;
 use function strrchr;
 use function var_dump;
-use const APPLICATION_PATH;
+use const ROOT_PATH;
 
 abstract class AbstractSite
 {
@@ -145,7 +145,7 @@ abstract class AbstractSite
         if (is_array($cookieStr)) {
             $cookieStr = $cookieStr[0];
         }
-        file_put_contents(APPLICATION_PATH.'/data/'.$key, $cookieStr);
+        file_put_contents(ROOT_PATH.'data'.DS.$key, $cookieStr);
     }
 
     /**
@@ -179,8 +179,8 @@ abstract class AbstractSite
     {
         $key = static::class.'-'.$key;
         $key = $this->formatKey($key);
-        if (file_exists(APPLICATION_PATH.'/data/'.$key)) {
-            return file_get_contents(APPLICATION_PATH.'/data/'.$key);
+        if (file_exists(ROOT_PATH.'data'.DS.$key)) {
+            return file_get_contents(ROOT_PATH.'data'.DS.$key);
         } else {
             return null;
         }
@@ -189,7 +189,7 @@ abstract class AbstractSite
     protected function saveText($key, $content)
     {
         $key = $this->formatKey($key);
-        file_put_contents(APPLICATION_PATH.'/data/'.$key, $content);
+        file_put_contents(ROOT_PATH.'data'.DS.$key, $content);
     }
 
     protected function formatKey($key)

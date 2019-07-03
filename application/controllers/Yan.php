@@ -111,8 +111,8 @@ class YanController extends BaseController
         if (!in_array($type, ['jpeg', 'png', 'jpg'])) {
             $this->error('不支持图片类型');
         }
-        $name = '/data/'.uniqid().'.'.$type;
-        move_uploaded_file($file['tmp_name'], APPLICATION_PATH.$name);
+        $name = 'data/'.uniqid().'.'.$type;
+        move_uploaded_file($file['tmp_name'], ROOT_PATH.$name);
         $this->success(['path' => $name]);
     }
 
