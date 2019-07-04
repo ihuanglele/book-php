@@ -104,6 +104,7 @@ class Qisuu extends AbstractSite
                     'cc' => 'qisuu.la',
                 ],
                 'headers' => self::PC_HEADERS,
+                'verify' => false,
             ],
         ];
     }

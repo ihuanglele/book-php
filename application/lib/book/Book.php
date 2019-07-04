@@ -16,8 +16,8 @@ use function time;
 class Book
 {
 
-    const SITES = ['Qisuu', 'Yznnw'];
-//    const SITES = ['Yznnw'];
+//    const SITES = ['Qisuu', 'Yznnw'];
+    const SITES = ['Qu'];
 
     const SITE_NAMESPACE_PREFIX = 'app\\lib\\book\\siteImpl\\';
 
@@ -34,7 +34,7 @@ class Book
     {
         $ck  = $key.$p;
         $res = Container::getCache()->get($ck);
-        if ($res) {
+        if (0 && $res) {
             return $res;
         }
         $siteInstances = [];
