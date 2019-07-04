@@ -22,8 +22,8 @@ class IndexController extends BaseController
 
     public function searchAction()
     {
-        $key = $this->get('key', '');
-        $p   = $this->get('p', 1);
+        $key = $this->getRequest()->getParam('key', '');
+        $p = $this->getRequest()->getParam('p', 1);
         $this->success(Book::search($key, $p));
     }
 

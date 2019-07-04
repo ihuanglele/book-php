@@ -9,8 +9,4 @@
 class AppBootstrap extends \Yaf\Bootstrap_Abstract
 {
 
-    public function _initRouter()
-    {
-    }
-
 }
