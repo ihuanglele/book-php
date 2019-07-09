@@ -82,7 +82,7 @@ class Book
         }
         $key     = $type.$bookId;
         $content = Container::getCache()->get($key);
-        if ($content) {
+        if (0 && $content) {
             return $content;
         } else {
             $cls = self::SITE_NAMESPACE_PREFIX.$type;
@@ -92,6 +92,9 @@ class Book
             $instance = new $cls();
 
             $content = $instance->getCat($bookId);
+            if ($content instanceof BookEntry) {
+                $content = $content->toArray();
+            }
             if ($content) {
                 Container::getCache()->set($key, $content, 0);
             }

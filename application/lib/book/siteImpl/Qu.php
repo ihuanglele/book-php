@@ -10,7 +10,13 @@ namespace app\lib\book\siteImpl;
 
 
 use app\lib\book\AbstractSite;
+use app\lib\book\BookEntry;
 use QL\QueryList;
+use function array_filter;
+use function explode;
+use function preg_match;
+use function sprintf;
+use function trim;
 
 class Qu extends AbstractSite
 {
@@ -48,27 +54,25 @@ class Qu extends AbstractSite
     {
         $Ql = new QueryList();
         $items = $Ql->html($html)->rules([
-            'name' => ['#search-main li .s2', 'text'],
-            'bookId' => ['#search-main li .s2 a', 'href'],
-            'author' => ['#search-main li .s4', 'text'],
-        ])->query()->getData();
+                                             'name'   => ['.s2', 'text'],
+                                             'bookId' => ['.s2 a', 'href'],
+                                             'author' => ['.s4', 'text'],
+                                         ])->range('#search-main>div>ul>li')->queryData();
         $data = [];
         $t = [
             'type' => static::getClassName(),
             'cover' => '',
         ];
-        $name = '';
+
         foreach ($items as $i => $item) {
             if ($i === 0) {
-                $name = $item['name'];
                 continue;
             }
             if (preg_match('#^https:\/\/www\.qu\.la\/book\/([0-9]*)#', $item['bookId'], $arr)) {
-                $t['name'] = $name;
+                $t['name']   = trim($item['name']);
                 $t['bookId'] = $arr[1];
                 $t['author'] = $item['author'];
-                $name = $item['author'];
-                $data[] = $t;
+                $data[]      = $t;
             }
         }
         return $data;
@@ -83,7 +87,33 @@ class Qu extends AbstractSite
      */
     public function getCat($bookId)
     {
-        // TODO: Implement getCat() method.
+        $html      = $this->getHtml($this->decodeCatUrl($bookId));
+        $ql        = QueryList::html($html);
+        $bookEntry = new BookEntry();
+        $bookEntry->setBookId($bookId);
+        $authorVar = explode('：', $ql->find('#info p:eq(0)')->text());
+        if (isset($authorVar[1])) {
+            $bookEntry->setAuthor($authorVar[1]);
+        }
+        $bookEntry->setName($ql->find('#info h1:eq(0)')->text());
+        $chapters = $ql->rules([
+                                   'title' => ['a', 'text'],
+                                   'link'  => ['a', 'href'],
+                               ])->range('#list dd')->queryData(function($item) use ($bookId)
+        {
+            $articleId = $this->encodeArticleUrl($item['link']);
+            if ($articleId) {
+                $item['bookId'] = $bookId;
+                $item['link']   = $articleId;
+
+                return $item;
+            } else {
+                return null;
+            }
+        });
+        $bookEntry->setChapters(array_filter($chapters));
+
+        return $bookEntry;
     }
 
     /**
@@ -106,12 +136,17 @@ class Qu extends AbstractSite
 
     protected function decodeCatUrl($id)
     {
-        // TODO: Implement decodeCatUrl() method.
+        return sprintf('https://www.qu.la/book/%u/', (int) $id);
     }
 
     protected function encodeArticleUrl($url)
     {
-        // TODO: Implement encodeArticleUrl() method.
+        // /book/180037/9104487.html
+        if (preg_match('#^\/book\/(\d+)/(\d+)\.html$#', $url, $arr)) {
+            return $arr[1].'-'.$arr[2];
+        } else {
+            return false;
+        }
     }
 
     protected function decodeArticleUrl($articleId, $bookId = null)
