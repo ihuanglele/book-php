@@ -119,7 +119,7 @@ class Book
         }
         $key     = $type.$bookId.$articleId;
         $content = Container::getCache()->get($key);
-        if ($content) {
+        if (0 && $content) {
             return $content;
         } else {
             $cls = self::SITE_NAMESPACE_PREFIX.$type;

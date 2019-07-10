@@ -13,6 +13,7 @@ use app\lib\book\AbstractSite;
 use app\lib\book\BookEntry;
 use QL\QueryList;
 use function array_filter;
+use function array_values;
 use function explode;
 use function preg_match;
 use function sprintf;
@@ -105,13 +106,18 @@ class Qu extends AbstractSite
             if ($articleId) {
                 $item['bookId'] = $bookId;
                 $item['link']   = $articleId;
-
+                $item['type']   = $this->getClassName();
                 return $item;
             } else {
                 return null;
             }
         });
-        $bookEntry->setChapters(array_filter($chapters));
+        $bookEntry->setType($this->getClassName());
+        $img = $ql->find('#fmimg img')->src;
+        if ($img) {
+            $bookEntry->setCover(sprintf('https://www.qu.la/%s', $img));
+        }
+        $bookEntry->setChapters(array_values(array_filter($chapters)));
 
         return $bookEntry;
     }
@@ -126,7 +132,12 @@ class Qu extends AbstractSite
      */
     public function getArticle($articleId, $bookId)
     {
-        // TODO: Implement getArticle() method.
+        $html    = $this->getHtml($this->decodeArticleUrl($articleId, $bookId));
+        $ql      = QueryList::html($html);
+        $content = $ql->find('#content')->html();
+        $content = explode("\n", $content);
+
+        return $this->trim_html($content[0]);
     }
 
     protected function getCatUrlId($url)
@@ -143,7 +154,7 @@ class Qu extends AbstractSite
     {
         // /book/180037/9104487.html
         if (preg_match('#^\/book\/(\d+)/(\d+)\.html$#', $url, $arr)) {
-            return $arr[1].'-'.$arr[2];
+            return $arr[2];
         } else {
             return false;
         }
@@ -151,6 +162,7 @@ class Qu extends AbstractSite
 
     protected function decodeArticleUrl($articleId, $bookId = null)
     {
-        // TODO: Implement decodeArticleUrl() method.
+        // https://www.qu.la/book/201052/1116149.html
+        return sprintf('https://www.qu.la/book/%u/%u.html', (int) $bookId, (int) $articleId);
     }
 }
