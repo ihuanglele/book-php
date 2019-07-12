@@ -34,7 +34,7 @@ class Book
     {
         $ck  = $key.$p;
         $res = Container::getCache()->get($ck);
-        if (0 && $res) {
+        if ($res) {
             return $res;
         }
         $siteInstances = [];
@@ -82,7 +82,7 @@ class Book
         }
         $key     = $type.$bookId;
         $content = Container::getCache()->get($key);
-        if (0 && $content) {
+        if ($content) {
             return $content;
         } else {
             $cls = self::SITE_NAMESPACE_PREFIX.$type;
@@ -119,7 +119,7 @@ class Book
         }
         $key     = $type.$bookId.$articleId;
         $content = Container::getCache()->get($key);
-        if (0 && $content) {
+        if ($content) {
             return $content;
         } else {
             $cls = self::SITE_NAMESPACE_PREFIX.$type;

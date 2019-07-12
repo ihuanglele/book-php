@@ -115,7 +115,7 @@ class Qu extends AbstractSite
         $bookEntry->setType($this->getClassName());
         $img = $ql->find('#fmimg img')->src;
         if ($img) {
-            $bookEntry->setCover(sprintf('https://www.qu.la/%s', $img));
+            $bookEntry->setCover(sprintf('https://www.qu.la%s', $img));
         }
         $bookEntry->setChapters(array_values(array_filter($chapters)));
 
